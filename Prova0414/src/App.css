@@ -1,0 +1,188 @@
+/* 🔹 Wrapper mais centralizado */
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* 🔹 Cards maiores e mais elegantes */
+.card {
+  background: linear-gradient(145deg, #273449, #1e293b);
+  padding: 25px;
+  border-radius: 18px;
+  margin-top: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 
+    0 10px 30px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+
+  transition: all 0.25s ease;
+}
+
+/* 🔥 Efeito ao passar o mouse */
+.card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 
+    0 15px 40px rgba(0,0,0,0.6),
+    0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+/* 🔹 Título mais destacado */
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 🔹 Grid mais espaçada */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* 🔹 Inputs mais bonitos */
+input, select {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--text);
+
+  font-size: 14px;
+
+  transition: all 0.2s ease;
+}
+
+/* 🔥 Foco premium */
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.2);
+}
+
+/* 🔹 BOTÕES BASE */
+button {
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* 🔹 BOTÃO PRINCIPAL */
+.btn-main {
+  margin-top: 10px;
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: white;
+  font-weight: 600;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+  filter: brightness(1.1);
+}
+
+/* 🔹 BOTÕES DE FILTRO */
+.filters button {
+  padding: 8px 16px;
+  border-radius: 20px;
+
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.filters button:hover {
+  background: rgba(96,165,250,0.15);
+  color: var(--text);
+}
+
+/* 🔥 ATIVO */
+.filters .active {
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: white;
+  border: none;
+}
+
+/* 🔹 BOTÃO REMOVER */
+.film-card button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 30px;
+  height: 30px;
+
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+
+  font-size: 16px;
+
+  opacity: 0;
+}
+
+.film-card:hover button {
+  opacity: 1;
+}
+
+.film-card button:hover {
+  background: #ef4444;
+  transform: scale(1.1);
+}
+
+/* 🔹 STATUS BAR MODERNA */
+.statusbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px 20px;
+
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+
+  backdrop-filter: blur(10px);
+}
+
+/* 🔹 TÍTULO */
+.statusbar h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* linha brilhante embaixo */
+.statusbar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  opacity: 0.7;
+}
