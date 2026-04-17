@@ -44,7 +44,7 @@ src/
 1. Clone o repositório:
 
 ```bash
-git clone <URL_DO_REPOSITORIO>](https://github.com/ferreirajoao-fatec/Provas_Danilo.git)
+git clone (https://github.com/ferreirajoao-fatec/Provas_Danilo.git)
 ```
 
 2. Acesse a pasta:
