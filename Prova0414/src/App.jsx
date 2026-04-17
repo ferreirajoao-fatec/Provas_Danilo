@@ -1,159 +1,215 @@
-import React, { useState } from "react";
 import "./App.css";
+import { useState, useEffect } from "react";
+
+import { auth, db } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  where,
+  deleteDoc,
+  doc,
+  serverTimestamp
+} from "firebase/firestore";
+
+import Auth from "./Auth";
+
 function App() {
+  const [user, setUser] = useState(null);
   const [filmes, setFilmes] = useState([]);
+
+  // FORMULÁRIO
   const [nome, setNome] = useState("");
   const [genero, setGenero] = useState("");
-  const [tipo, setTipo] = useState("");
+  const [tipo, setTipo] = useState("Filme");
   const [ano, setAno] = useState("");
   const [nota, setNota] = useState("");
-  const [filtro, setFiltro] = useState("Todos");
 
-  const adicionarFilme = (e) => {
-    e.preventDefault();
+  // 🔐 VERIFICAR USUÁRIO LOGADO
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
 
-    if (!nome || !genero || !tipo) return;
+    return () => unsubscribe();
+  }, []);
 
-    const novo = {
-      id: Date.now(),
-      nome,
-      genero,
-      tipo,
-      ano,
-      nota
-    };
+  // 🔥 CARREGAR FILMES DO FIRESTORE
+  useEffect(() => {
+    if (!user) return;
 
-    setFilmes([...filmes, novo]);
+    const q = query(
+      collection(db, "filmes"),
+      where("userId", "==", user.uid)
+    );
 
-    setNome("");
-    setGenero("");
-    setTipo("");
-    setAno("");
-    setNota("");
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const lista = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setFilmes(lista);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // ➕ ADICIONAR FILME
+  const adicionarFilme = async () => {
+    if (!nome || !genero || !ano || !nota) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "filmes"), {
+        nome,
+        genero,
+        tipo,
+        ano,
+        nota,
+        userId: user.uid,
+        criadoEm: serverTimestamp()
+      });
+
+      setNome("");
+      setGenero("");
+      setAno("");
+      setNota("");
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao salvar filme!");
+    }
   };
 
-  const removerFilme = (id) => {
-    setFilmes(filmes.filter(f => f.id !== id));
+  // ❌ REMOVER FILME
+  const removerFilme = async (id) => {
+    try {
+      await deleteDoc(doc(db, "filmes", id));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const generos = ["Todos", ...new Set(filmes.map(f => f.genero))];
+  // 🔒 SE NÃO ESTIVER LOGADO
+  if (!user) {
+    return (
+      <div className="container">
+        <Auth />
+      </div>
+    );
+  }
 
-  const listaFiltrada =
-    filtro === "Todos"
-      ? filmes
-      : filmes.filter(f => f.genero === filtro)
-
+  // 🎬 DASHBOARD
   return (
-    <div className="app">
+    <div className="dashboard">
 
-      {/* 🔝 StatusBar */}
-      <div className="statusbar">
-        Catálogo de Filmes ou Séries
+      {/* SIDEBAR */}
+      <div className="sidebar">
+        <h2>🎬 Catálogo</h2>
+
+        <button
+          className="btn-danger"
+          onClick={() => signOut(auth)}
+        >
+          Logout
+        </button>
       </div>
 
-
+      {/* MAIN */}
       <div className="main">
-<form onSubmit={adicionarFilme} className="form-wrapper">
 
-  {/* 🔹 CARD NOME */}
-  <div className="card">
-    <h3 className="card-title">🎬 Nome</h3>
-    <input
-      placeholder="Ex: Interestelar"
-      value={nome}
-      onChange={(e) => setNome(e.target.value)}
-    />
-  </div>
-
-  {/* 🔹 CARD GÊNERO E TIPO */}
-  <div className="card">
-    <h3 className="card-title">🎭 Classificação</h3>
-
-    <div className="card-grid">
-      <select value={genero} onChange={(e) => setGenero(e.target.value)}>
-        <option value="">Gênero</option>
-        <option>Ação</option>
-        <option>Comédia</option>
-        <option>Drama</option>
-        <option>Ficção Científica</option>
-        <option>Desenho Animado</option>
-      </select>
-
-      <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-        <option value="">Tipo</option>
-        <option>Filme</option>
-        <option>Série</option>
-      </select>
-    </div>
-  </div>
-
-  {/* 🔹 CARD DETALHES */}
-  <div className="card">
-    <h3 className="card-title">📊 Detalhes</h3>
-
-    <div className="card-grid">
-      <input
-        type="number"
-        placeholder="Ano"
-        value={ano}
-        onChange={(e) => setAno(e.target.value)}
-      />
-
-      <input
-        type="number"
-        placeholder="Nota"
-        value={nota}
-        onChange={(e) => setNota(e.target.value)}
-      />
-    </div>
-  </div>
-
-  {/* 🔹 BOTÃO */}
-  <button type="submit" className="btn-main">
-    + Adicionar ao Catálogo
-  </button>
-
-        </form>
-
-        {/* FILTROS */}
-        <div className="filters">
-          {generos.map((g, i) => (
-            <button
-              key={i}
-              className={filtro === g ? "active" : ""}
-              onClick={() => setFiltro(g)}
-            >
-              {g}
-            </button>
-          ))}
+        {/* HEADER */}
+        <div className="header">
+          <h1>Meus Filmes e Séries</h1>
+          <div className="user-info">{user.email}</div>
         </div>
 
-        {/* LISTA */}
-        <div className="films-grid">
-          {listaFiltrada.length === 0 ? (
-            <p className="empty">Nenhum filme cadastrado</p>
-          ) : (
-            listaFiltrada.map((f) => (
-              <div className="film-card" key={f.id}>
-                <h3>{f.nome}</h3>
-                <p>{f.genero}</p>
-                <span>{f.tipo}</span>
-                <small>{f.ano} ⭐ {f.nota}</small>
+        {/* CONTEÚDO */}
+        <div className="cards">
 
-                <button onClick={() => removerFilme(f.id)}>
-                  ✕
-                </button>
+          {/* FORMULÁRIO */}
+          <div className="card">
+            <h2>Adicionar</h2>
+
+            <input
+              placeholder="Nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+            />
+
+            <input
+              placeholder="Gênero"
+              value={genero}
+              onChange={(e) => setGenero(e.target.value)}
+            />
+
+            <select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+            >
+              <option>Filme</option>
+              <option>Série</option>
+            </select>
+
+            <input
+              placeholder="Ano"
+              value={ano}
+              onChange={(e) => setAno(e.target.value)}
+            />
+
+            <input
+              placeholder="Nota"
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+            />
+
+            <button className="btn-primary" onClick={adicionarFilme}>
+              Salvar
+            </button>
+          </div>
+
+          {/* LISTA */}
+          <div className="card">
+            <h2>Lista</h2>
+
+            {filmes.length === 0 ? (
+              <p>Nenhum item cadastrado</p>
+            ) : (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: "10px"
+                }}
+              >
+                {filmes.map((f) => (
+                  <div key={f.id} className="card">
+                    <h3>{f.nome}</h3>
+                    <p>{f.genero}</p>
+                    <p>{f.tipo}</p>
+                    <p>{f.ano}</p>
+                    <p>⭐ {f.nota}</p>
+
+                    <button
+                      className="btn-danger"
+                      onClick={() => removerFilme(f.id)}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))
-          )}
+            )}
+          </div>
+
         </div>
       </div>
-
-      {/* 🔻 Footer */}
-      <footer className="footer">
-        João Ferreira - {new Date().toLocaleDateString()}
-      </footer>
     </div>
-  );}
+  );
+}
 
 export default App;
